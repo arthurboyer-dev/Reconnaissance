@@ -1,25 +1,20 @@
-import tkinter as tk
+import cv2
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_widgets()
+vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-    def create_widgets(self):
-        self.hi_there = tk.Button(self)
-        self.hi_there["text"] = "Hello World\n(click me)"
-        self.hi_there["command"] = self.say_hi
-        self.hi_there.pack(side="top")
+if vid.isOpened():
+  print ("Connected....")
+  while True:
+    ret, frame = vid.read()
+    if ret:
+      cv2.imshow("video", frame)
+    else:
+      print ("Error aqcuiring the frame")
+      break
+    if cv2.waitKey(10000) & 0xFF:
+      break
+else:
+  print ("Not Connected....")
 
-        self.quit = tk.Button(self, text="QUIT", fg="red",
-                              command=self.master.destroy)
-        self.quit.pack(side="bottom")
-
-    def say_hi(self):
-        print("Carlos toudoum toudoum toudoum ")
-
-root = tk.Tk()
-app = Application(master=root)
-app.mainloop()
+vid.release()
+cv2.destroyAllWindows()
