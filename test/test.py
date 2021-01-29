@@ -1,36 +1,48 @@
-from cv2 import*
+from  __future__ import print_function
+import cv2 as cv
+import argparse
 
-#Rajouter un dossier contenant des visages .xml
-visage = cv2.CascadeClassifier("test\frontfacealt2.xml")
-vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+def detectAndDisplay(frame):
+  frame_gray=cv.cvtColor(frame, cv.COLOR_BAYER_BG2GRAY)
+  frame_gray=cv.equalizeHist(frame_gray)
+  
+  #Detection de visage
+  faces=face_cascade.detectMultiScale(frame_gray)
+  for (x,y,w,h) in faces:
+    center = (x + w//2, y + h//2)
+    frame = cv.ellipse(frame, center, (w//2, h//2), 0, 0, 360, (255, 0, 255), 4)
+    faceROI = frame_gray[y:y+h,x:x+w]
+  cv.imshow('EYES EYES EYES EYES EYS EYS EYS EYS YESY EYS EYSYESY ')
 
-if vid.isOpened():
-  print ("Connected....")
-  while True:
-    ret, frame = vid.read()
-    tickmark=cv2.getTickCount() #Frame rate
-    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    face = visage.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=0)
+parser = argparse.ArgumentParser(description='Test')
+parser.add_argument('--face_cascade', help='Path to face cascade.', default='C:/Users/Arthur/AppData/Local/Programs/Python/Python37-32/Lib/haarcascade/frontfacealt2')
+parser.add_argument('--camera', help='Camera divide number.', type=int, default=0)
+args = vars(parser.parse_args())
 
-    for x, y, w, h in face:
-      cv2.rectangle(frame, (x,y), (x+y, y+h), (255,0,0) ,2)
+face_cascade =args.face_cascade()
+face_cascade =cv.CascadeClassifier()
 
-    if ret:
-      cv2.imshow("video", frame)
+if not face_cascade.load(cv.samples.findFile(face_cascade_name)):
+  print('--(!)Erreur de chargement des fichiers du visage')
+  exit(0)
 
-    else:
-      print ("Error aqcuiring the frame")
-      break
+camera_device =args.camera
 
-    if cv2.waitKey(1)==ord('q'):
-      break
+cap =cv.VideoCapture(camera_device)
+if not cap.isOpened:
+  print('--(!)Erreur de connection video')
+  exit(0)
 
-    fps=cv2.getTickFrequency()/(cv2.getTickCount()-tickmark)
-    cv2.putText(frame,"IPS: {:05.2F}".format(fps), (10,30), cv2.FONT_HERSHEY_PLAIN, 2, (255,0,0), 2)
-    cv2.imshow('video', frame)
+while True:
+  ret, frame = cap.read()
+  if frame is None:
+    print("--(!)Pas de capture d'images")
+    break
 
-else:
-  print ("Not Connected....")
+  detectAndDisplay(frame)
+
+  if cv.waitKey(10) == 27:
+    break
 
 vid.release()
 cv2.destroyAllWindows()
